@@ -1,2 +1,2 @@
-# PassCMD
+# PassCmd
 Command Line Password Manager
