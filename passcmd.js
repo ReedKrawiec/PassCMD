@@ -125,7 +125,7 @@ function main(){
         }).write();
         console.log("Local password changed.")
         break;
-      case "importpass":
+      case "importpasses":
         let passes_to_import = JSON.parse(fs.readFileSync("./passimport.json","utf8"));
         passes_to_import.forEach((obj)=>{
           if(passExists(obj.name)){
