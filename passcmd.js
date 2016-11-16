@@ -1,5 +1,5 @@
 'use strict'
-const alphadata = require("./libs/alphadata.js").default;
+const alphadata = require("alphadata");
 const path = require("path");
 const crypto = require("crypto");
 const read = require("read");

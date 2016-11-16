@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "alphadata": "^1.0.1",
     "copy-paste": "^1.3.0",
     "lodash": "^4.16.4",
     "mkdirp": "^0.5.1",
