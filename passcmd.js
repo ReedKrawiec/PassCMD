@@ -7,6 +7,7 @@ const algorithm = 'aes-256-ctr';
 const ncp = require("copy-paste");
 const fs = require('fs');
 
+
 let database = new alphadata(path.join(__dirname,"data","database"));
 let tables = ["passwords","settings"];
 let command = process.argv[2];
@@ -34,13 +35,13 @@ tables.forEach((table_name)=>{
     database.makeTable(table_name);
 })
 
-const passExists = (name)=>{
-   let temp = database.select("passwords").where((obj)=>{return (obj.name===name)}).getSelected();
+const passExists = (name,password)=>{
+   let temp = database.select("passwords").where((obj)=>{return (decrypt(obj.name,password)===name)}).getSelected();
    return (temp.length>0);
 }
 
-const selectPass = (name)=>{
-  return(database.select("passwords").where((obj)=>{return (obj.name===name)}));
+const selectPass = (name,password)=>{
+  return(database.select("passwords").where((obj)=>{return (decrypt(obj.name,password)===name)}));
 }
 
 if(database.select("settings").where((obj)=>{
@@ -54,6 +55,8 @@ if(database.select("settings").where((obj)=>{
 else{
   main();
 }
+
+
 
 function main(){
   let pass_hash = database.select("settings").where((obj)=>{
@@ -72,8 +75,20 @@ function main(){
       return;
     }
     switch(command){
+      case "gen_pass":
+        let name = process.argv[3];
+        let length = process.argv[4];
+        if(length === undefined){
+          length = 64;
+        }
+        length = Math.floor(length/2);
+        crypto.randomBytes(length, function(err, buffer) {
+          let token = buffer.toString('hex');
+          database.select("passwords").insert({name:name,value:encrypt(token,password)}).write();
+        });
+        break;
       case "get":
-        let encrypted_password_queried = selectPass(process.argv[3]).getSelected()[0];
+        let encrypted_password_queried = selectPass(process.argv[3],password).getSelected()[0];
         if(encrypted_password_queried === undefined){
           console.log("Password does not exist.");
         }
@@ -86,7 +101,7 @@ function main(){
         }
         break;
       case "add":
-        if(passExists(process.argv[3])){
+        if(passExists(process.argv[3],password)){
           console.log("Password already exists for that service, use edit to edit the password for "+process.argv[3]);
         }
         else{
@@ -95,20 +110,20 @@ function main(){
         }
         break; 
       case "remove":
-        if(!passExists(process.argv[3])){
+        if(!passExists(process.argv[3],password)){
           console.log("Password doesn't exist.");
         }
         else{        
-          selectPass(process.argv[3]).deleteItem().write();
+          selectPass(process.argv[3],password).deleteItem().write();
           console.log("Password removed");
         }
         break;
       case "edit":
-        if(!passExists(process.argv[3])){
+        if(!passExists(process.argv[3],password)){
           console.log("Password doesn't exist.");
         }
         else{
-          selectPass(process.argv[3]).edit((obj)=>{
+          selectPass(process.argv[3],password).edit((obj)=>{
             obj.value = encrypt(process.argv[4],password);
           }).write();
           console.log("Password editted");
@@ -128,7 +143,7 @@ function main(){
       case "importpasses":
         let passes_to_import = JSON.parse(fs.readFileSync("./passimport.json","utf8"));
         passes_to_import.forEach((obj)=>{
-          if(passExists(obj.name)){
+          if(passExists(obj.name,password)){
             console.log(`Entry exists for ${obj.name}, skipping.`)
           }
           else{
@@ -141,7 +156,7 @@ function main(){
       let passes = database.select("passwords").getSelected();
       console.log("Passwords in database:")
       passes.forEach((obj)=>{
-        console.log(`${obj.name}`);
+        console.log(`${decrypt(obj.name,password)}`);
       })
         break;  
       default:

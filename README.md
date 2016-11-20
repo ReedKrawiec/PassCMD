@@ -6,6 +6,10 @@ Command Line Password Manager
 
 ## Commands
 
+<> = required
+
+() = optional
+
 ### Set your local password
 `node passcmd.js setpass <password>`
 ### add a password
@@ -20,4 +24,7 @@ Command Line Password Manager
 `node passcmd.js listpasses`  
 ### import passwords from passimport.json
 `node passcmd.js importpasses`
+### generate new password 
+`node passcmd.js gen_pass (length)` 
 
+default length = 32 characters 
