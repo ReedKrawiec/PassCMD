@@ -105,7 +105,7 @@ function main(){
           console.log("Password already exists for that service, use edit to edit the password for "+process.argv[3]);
         }
         else{
-          database.select("passwords").insert({name:process.argv[3],value:encrypt(process.argv[4],password)}).write();
+          database.select("passwords").insert({name:encrypt(process.argv[3],password),value:encrypt(process.argv[4],password)}).write();
           console.log("Password added.");
         }
         break; 
