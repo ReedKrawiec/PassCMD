@@ -84,7 +84,7 @@ function main(){
         length = Math.floor(length/2);
         crypto.randomBytes(length, function(err, buffer) {
           let token = buffer.toString('hex');
-          database.select("passwords").insert({name:name,value:encrypt(token,password)}).write();
+          database.select("passwords").insert({name:encrypt(name,password),value:encrypt(token,password)}).write();
         });
         break;
       case "get":
